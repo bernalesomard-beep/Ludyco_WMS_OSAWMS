@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html class="h-full bg-[#f8fafc]" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Omar Bernales WMS ENTERPRISE - Saldo Ludyco (Nave 1 Lurín)</title>
+<!-- Tailwind CSS CDN with forms & container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63',
+            },
+            wms: {
+              sidebar: '#0a101d',
+              card: '#ffffff',
+              border: '#e2e8f0',
+              active: '#0284c7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: StyleConfigurations -->
+<style data-purpose="base-layout">
+    /* Custom Scrollbar for dense enterprise tables */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .view-transition {
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .view-enter {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .view-exit {
+      display: none;
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .loading-row td { text-align:center; padding:2rem; color:#94a3b8; font-size:12px; }
+    .error-row td { text-align:center; padding:2rem; color:#dc2626; font-size:12px; }
+    .badge-ok    { background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; letter-spacing:.03em; }
+    .badge-warn  { background:#fffbeb; color:#b45309; border:1px solid #fde68a; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; letter-spacing:.03em; }
+    .badge-error { background:#fee2e2; color:#b91c1c; border:1px solid #fecaca; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; letter-spacing:.03em; }
+  </style>
+<!-- END: StyleConfigurations -->
+</head>
+<body class="h-full text-slate-800 antialiased overflow-hidden flex bg-[#f8fafc]">
+<!-- BEGIN: Sidebar -->
+<aside class="w-64 bg-[#0a101d] text-slate-300 flex flex-col flex-shrink-0 z-30 select-none border-r border-slate-800" data-purpose="main-sidebar">
+<!-- Logo & Brand Header -->
+<div class="h-16 flex items-center px-4 gap-3 border-b border-slate-800/80 bg-[#070b14]">
+<div class="h-9 w-9 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white text-sm shadow-md shadow-emerald-500/20 tracking-wider">
+        UB
+      </div>
+<div class="flex flex-col">
+<span class="font-bold text-white tracking-tight text-sm flex items-center gap-1.5">
+          SALDO_OSAWMS
+        </span>
+<span class="text-[10px] tracking-widest text-slate-400 uppercase font-mono font-medium">
+          v14.09.89
+        </span>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+<!-- Section: Operaciones & Stock -->
+<div>
+<p class="px-2 mb-2 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase">
+          OPERACIONES &amp; STOCK
+        </p>
+<div class="space-y-1">
+<!-- Saldo General (Dashboard) -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-white bg-sky-600 shadow-sm shadow-sky-600/30" id="nav-saldo" onclick="navigateTo('saldo')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-90" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Saldo General</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-400 nav-bullet"></span>
+</button>
+<!-- Movimientos Internos -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-movimientos" onclick="navigateTo('movimientos')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Movimientos</span>
+</div>
+<span class="text-[10px] bg-slate-800 text-cyan-400 font-mono px-1.5 py-0.5 rounded border border-slate-700" id="badge-movimientos">--</span>
+</button>
+<!-- Ingresos (Inbound) -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-ingresos" onclick="navigateTo('ingresos')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Ingresos</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+<!-- Pedidos y Despacho -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-pedidos" onclick="navigateTo('pedidos')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Pedidos</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+<!-- Reporte de Bajas -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-bajas" onclick="navigateTo('bajas')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Reporte de Bajas</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+</div>
+</div>
+<!-- Section: Maestros & Espacios -->
+<div>
+<p class="px-2 mb-2 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase">
+          MAESTROS &amp; ESPACIOS
+        </p>
+<div class="space-y-1">
+<!-- Artículos & SKU -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-articulos" onclick="navigateTo('articulos')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Artículos &amp; SKU</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+<!-- Anaqueles & Racks -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-anaqueles" onclick="navigateTo('anaqueles')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Anaqueles &amp; Racks</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+<!-- Ocupabilidad -->
+<button class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-all group text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" id="nav-ocupabilidad" onclick="navigateTo('ocupabilidad')">
+<div class="flex items-center gap-2.5">
+<svg class="w-4 h-4 opacity-75" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Ocupabilidad</span>
+</div>
+<span class="h-1.5 w-1.5 rounded-full bg-transparent nav-bullet"></span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Sidebar Bottom Status -->
+<div class="p-3 border-t border-slate-800/90 bg-[#070b14]/70">
+<div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/90 border border-slate-800">
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-slate-200">Nave 1 - Lurín</span>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-[10px] text-slate-400 font-mono">En Línea • MY WHS</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-white p-1 hover:bg-slate-800 rounded" onclick="triggerToast('Configuración del almacén Nave 1 sincronizada')">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+</aside>
+<!-- END: Sidebar -->
+<!-- BEGIN: MainContentWrapper -->
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<!-- BEGIN: TopBar -->
+<header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 z-20" data-purpose="top-header">
+<!-- Search Box with Cmd+K hint -->
+<div class="flex items-center gap-3 w-96">
+<div class="relative w-full">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<input class="w-full pl-9 pr-12 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 focus:bg-white transition-all font-sans" id="global-search" onkeydown="if(event.key==='Enter') globalSearch(this.value)" placeholder="Filtrar por producto, lote BPCS, código o ubicación..." type="text"/>
+<span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+<kbd class="px-1.5 py-0.5 text-[10px] text-slate-400 bg-white border border-slate-200 rounded font-mono shadow-xs">⌘K</kbd>
+</span>
+</div>
+</div>
+<!-- Right Header Actions & Profile -->
+<div class="flex items-center gap-4">
+<!-- Live status pulse -->
+<div class="flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-200/80 rounded-full">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="text-[11px] font-medium text-slate-600">Actualizado: <span class="font-mono text-slate-800" id="live-clock">--:--:--</span></span>
+</div>
+<!-- Sync Icon -->
+<div class="flex flex-col items-center">
+<button class="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-slate-100 rounded-lg transition-colors" onclick="cargarTodo(true)" title="Sincronizar Datos">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<span class="text-[9px] text-slate-400 font-mono whitespace-nowrap" id="last-sync-label">Sin sincronizar</span>
+</div>
+<!-- Notification Bell -->
+<button class="relative p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors" onclick="mostrarAlertas()">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" id="alert-dot"></span>
+</button>
+<div class="h-5 w-px bg-slate-200"></div>
+<!-- User Profile Pill -->
+<div class="flex items-center gap-3 pl-1">
+<div class="flex flex-col text-right">
+<span class="text-xs font-semibold text-slate-800">Saldo Ludyco</span>
+<span class="text-[10px] text-slate-500 font-medium">Supervisor de Trazabilidad</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center border border-slate-700 shadow-xs">
+            SL
+          </div>
+</div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- Prototype Mode Info Banner -->
+<div class="bg-gradient-to-r from-sky-900 via-indigo-950 to-slate-900 text-sky-200 text-xs px-6 py-1.5 flex items-center justify-between border-b border-sky-800/40">
+<div class="flex items-center gap-2 font-medium">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+</span>
+<span>Conectado a Google Sheets en tiempo real • Navega haciendo clic en cualquier sección del menú lateral</span>
+</div>
+<div class="flex items-center gap-3 text-[11px] text-sky-300/80">
+<span>v3.9 Enterprise</span>
+<span>•</span>
+<span class="text-emerald-400" id="sync-status">Sincronizando...</span>
+</div>
+</div>
+<!-- BEGIN: Main Scrollable Content Area -->
+<main class="flex-1 overflow-y-auto bg-[#f8fafc] p-6">
+<!-- ========================================== -->
+<!-- VIEW 1: SALDO GENERAL & STOCK (DASHBOARD) -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewSaldo -->
+<section class="view-panel space-y-6" id="view-saldo">
+<!-- Breadcrumb & Action bar -->
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">RESUMEN DE STOCK</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Resumen de Saldo &amp; Stock</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded-md hover:bg-slate-50 transition-colors shadow-xs" onclick="exportarSaldo()">
+<svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+              Exportar Excel
+            </button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 transition-colors shadow-xs" onclick="cargarTodo(true)">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+              Actualizar
+            </button>
+</div>
+</div>
+<!-- 3-Column Layout: Main Content (Cols 1 & 2) + Right Sidebar (Col 3) -->
+<div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+<!-- Left & Center Area (3 cols on desktop) -->
+<div class="xl:col-span-3 space-y-6">
+<!-- KPI Cards Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- KPI 1 -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative overflow-hidden">
+<div class="flex items-center justify-between text-slate-500">
+<span class="text-[11px] font-bold uppercase tracking-wider">STOCK TOTAL EN SISTEMA</span>
+<div class="p-1.5 bg-sky-50 text-sky-600 rounded-lg">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-black text-slate-900 tracking-tight" id="kpi-stock-total">--</span>
+<span class="text-xs text-slate-400 font-medium">unid.</span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+<span class="text-slate-400" id="kpi-stock-total-sub">Cargando...</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative overflow-hidden">
+<div class="flex items-center justify-between text-slate-500">
+<span class="text-[11px] font-bold uppercase tracking-wider">LOTES DISPONIBLES VIGENTES</span>
+<div class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-black text-slate-900 tracking-tight" id="kpi-lotes-vigentes">--</span>
+<span class="text-xs text-slate-400 font-medium">lotes</span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+<span class="text-slate-400">Eficiencia operativa</span>
+<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200" id="kpi-eficiencia">--%</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative overflow-hidden">
+<div class="flex items-center justify-between text-slate-500">
+<span class="text-[11px] font-bold uppercase tracking-wider">LOTES VENCIDOS</span>
+<div class="p-1.5 bg-rose-50 text-rose-600 rounded-lg">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-black text-rose-600 tracking-tight" id="kpi-vencidos">--</span>
+<span class="text-xs text-slate-400 font-medium">unid.</span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+<span class="text-slate-400">Bloqueados para despacho</span>
+<button class="text-rose-600 hover:text-rose-800 font-semibold underline underline-offset-2" onclick="navigateTo('bajas')">
+                    Ver detalle →
+                  </button>
+</div>
+</div>
+</div>
+<!-- Tabs & Quick Filters Bar -->
+<div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+<div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+<button class="px-3 py-1 rounded text-xs font-semibold bg-white text-slate-800 shadow-xs flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Saldo de Inventario
+                </button>
+<button class="px-3 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors" onclick="navigateTo('movimientos')">
+                  Movimientos Recientes
+                </button>
+<button class="px-3 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors" onclick="navigateTo('bajas')">
+<span>Alertas Vencimiento</span>
+<span class="px-1.5 py-0.2 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-full" id="badge-alertas">--</span>
+</button>
+</div>
+<!-- Inline Filters -->
+<div class="flex items-center gap-2">
+<select class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 bg-white text-slate-700 focus:ring-1 focus:ring-sky-500" id="filter-whs-saldo" onchange="filterSaldo()">
+<option value="">Todos los WHS</option>
+</select>
+<input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-40 placeholder-slate-400" id="filter-codigo-saldo" oninput="debouncedFilterSaldo()" placeholder="Código o Lote..." type="text"/>
+<button class="px-3 py-1.5 bg-sky-600 text-white rounded-lg text-xs font-medium hover:bg-sky-700 flex items-center gap-1" onclick="filterSaldo()">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                  Filtrar
+                </button>
+</div>
+</div>
+<!-- Table 1: Registros de Saldo -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-800 tracking-wide">REGISTROS DE SALDO</span>
+<span class="text-xs text-slate-400">|</span>
+<span class="text-xs text-slate-500" id="saldo-count">Cargando...</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-emerald-600">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-medium text-[11px]">Transmisión en vivo</span>
+</div>
+</div>
+<div class="overflow-x-auto" style="max-height:520px; overflow-y:auto;" id="saldo-scroll-wrap">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10.5px]">
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">DESCRIPCIÓN</th>
+<th class="py-2.5 px-3 font-semibold">WHS</th>
+<th class="py-2.5 px-3 font-semibold">UBICACIÓN</th>
+<th class="py-2.5 px-3 font-semibold">LOTE BPCS</th>
+<th class="py-2.5 px-3 font-semibold">LOTE FÍSICO</th>
+<th class="py-2.5 px-3 font-semibold">EXPIRA</th>
+<th class="py-2.5 px-3 font-semibold">FAMILIA</th>
+<th class="py-2.5 px-3 font-semibold text-right">SALDO</th>
+<th class="py-2.5 px-3 font-semibold text-center">ESTADO</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700 font-sans" id="tbody-saldo">
+<tr class="loading-row"><td colspan="10">Cargando datos de saldo...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Table 2: Últimos Movimientos Registrados -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="text-xs font-bold text-slate-800 tracking-wide">ÚLTIMOS MOVIMIENTOS REGISTRADOS</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<button class="text-sky-600 hover:underline font-medium ml-1" onclick="navigateTo('movimientos')">Ver todo →</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10px]">
+<th class="py-2 px-3 font-semibold">FECHA / HORA</th>
+<th class="py-2 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2 px-3 font-semibold">LOTE BPCS</th>
+<th class="py-2 px-3 font-semibold">UBIC. ORIGEN</th>
+<th class="py-2 px-3 font-semibold">UBIC. DESTINO</th>
+<th class="py-2 px-3 font-semibold text-right">CANT.</th>
+<th class="py-2 px-3 font-semibold">MOTIVO</th>
+<th class="py-2 px-3 font-semibold text-center">ESTADO</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="tbody-mov-recientes">
+<tr class="loading-row"><td colspan="8">Cargando movimientos...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Column (Widgets: Lotes, Buscador, Ocupabilidad) -->
+<div class="space-y-6">
+<!-- Widget 1: Resumen de Estado de Lotes -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+<h3 class="text-xs font-bold text-slate-800 tracking-wide uppercase mb-3 flex items-center justify-between">
+<span>ESTADO DE LOTES</span>
+<span class="text-[10px] text-slate-400 font-normal">Actual</span>
+</h3>
+<div class="space-y-2" id="widget-estado-lotes">
+<div class="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 border border-emerald-100">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-xs font-semibold text-slate-700">Disponible</span>
+</div>
+<span class="text-xs font-mono font-bold text-emerald-700" id="lotes-disponible">--</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-rose-50/60 border border-rose-100">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+<span class="text-xs font-semibold text-slate-700">Vencidos</span>
+</div>
+<span class="text-xs font-mono font-bold text-rose-700" id="lotes-vencidos">--</span>
+</div>
+</div>
+</div>
+<!-- Widget 2: Consulta Rápida por Código -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+<h3 class="text-xs font-bold text-slate-800 tracking-wide uppercase mb-2 flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>CONSULTA RÁPIDA POR CÓDIGO</span>
+</h3>
+<p class="text-[11px] text-slate-500 mb-3">Ingrese el código de producto y busque su saldo y ubicación.</p>
+<div class="space-y-2">
+<input class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-sky-500 font-mono" id="quick-codigo-input" onkeydown="if(event.key==='Enter') quickSearchCodigo()" placeholder="Digite el código (Ej: GK9923)..." type="text"/>
+<button class="w-full py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors" onclick="quickSearchCodigo()">
+                  Buscar Código
+                </button>
+<div class="text-[11px] text-slate-600 mt-2" id="quick-search-result"></div>
+</div>
+</div>
+<!-- Widget 3: Ocupabilidad Resumen Nave -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+<div class="flex items-center justify-between mb-3">
+<div>
+<h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">OCUPABILIDAD</h3>
+<span class="text-[10px] text-slate-400">NAVE 2 • LURÍN</span>
+</div>
+<button class="text-[11px] text-sky-600 hover:underline font-medium" onclick="navigateTo('ocupabilidad')">Ver Matriz</button>
+</div>
+<div class="space-y-2.5" id="widget-ocupabilidad">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-slate-600">Ocupación actual</span>
+<span class="font-mono font-bold text-slate-800" id="ocup-actual-txt">-- / --</span>
+</div>
+<div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full rounded-full" id="ocup-actual-bar" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: ViewSaldo -->
+<!-- ========================================== -->
+<!-- VIEW 2: DETALLE DE INBOUND (INGRESOS) -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewIngresos -->
+<section class="view-panel space-y-6 hidden" id="view-ingresos">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">RECEPCIÓN &amp; INBOUND</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5 flex items-center gap-2">
+<svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              Detalle de Inbound
+            </h1>
+<p class="text-xs text-slate-500 mt-0.5">Vista completa y trazabilidad de importaciones y compras locales en tiempo real.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0f172a] text-white text-xs font-medium rounded-md hover:bg-slate-800 transition-colors shadow-xs" onclick="exportarIngresos()">
+<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              Exportar Excel
+            </button>
+</div>
+</div>
+<!-- Filter Row -->
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-end gap-3">
+<div class="w-36">
+<label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">TIPO</label>
+<select class="w-full text-xs border border-slate-300 rounded-lg py-1.5 px-2.5 bg-white" id="filter-tipo-ingreso" onchange="filterIngresos()">
+<option value="">Todos</option>
+<option value="IMP">Importación (IMP)</option>
+<option value="CL">Compra Local (CL)</option>
+</select>
+</div>
+<div class="w-36">
+<label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">MES</label>
+<select class="w-full text-xs border border-slate-300 rounded-lg py-1.5 px-2.5 bg-white" id="filter-mes-ingreso" onchange="filterIngresos()">
+<option value="">Todos</option>
+</select>
+</div>
+<div class="w-48">
+<label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">REFERENTE</label>
+<input class="w-full text-xs border border-slate-300 rounded-lg py-1.5 px-2.5" id="filter-referente-ingreso" oninput="debouncedFilterIngresos()" placeholder="Buscar referente..." type="text"/>
+</div>
+<div class="w-48">
+<label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">CÓDIGO</label>
+<input class="w-full text-xs border border-slate-300 rounded-lg py-1.5 px-2.5" id="filter-codigo-ingreso" oninput="debouncedFilterIngresos()" placeholder="Buscar código..." type="text"/>
+</div>
+<div class="flex items-center gap-2 ml-auto">
+<button class="px-3 py-1.5 border border-slate-300 text-slate-600 rounded-lg text-xs font-medium hover:bg-slate-50" onclick="limpiarFiltrosIngresos()">
+              ✕ Limpiar
+            </button>
+</div>
+</div>
+<!-- Inbound Table -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-800 tracking-wide" id="ingresos-count">Cargando...</span>
+</div>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10.5px]">
+<th class="py-2.5 px-3 font-semibold">TIPO</th>
+<th class="py-2.5 px-3 font-semibold">MES</th>
+<th class="py-2.5 px-3 font-semibold">ORD</th>
+<th class="py-2.5 px-3 font-semibold">REFERENTE</th>
+<th class="py-2.5 px-3 font-semibold">DOCUMENTO</th>
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">DESCRIPCIÓN</th>
+<th class="py-2.5 px-3 font-semibold">LOTE</th>
+<th class="py-2.5 px-3 font-semibold">EXPIRA</th>
+<th class="py-2.5 px-3 font-semibold text-right">CANT.</th>
+<th class="py-2.5 px-3 font-semibold text-center">ESTATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700 font-sans" id="tbody-ingresos">
+<tr class="loading-row"><td colspan="11">Cargando ingresos...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewIngresos -->
+<!-- ========================================== -->
+<!-- VIEW 3: PEDIDOS & DESPACHO -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewPedidos -->
+<section class="view-panel space-y-6 hidden" id="view-pedidos">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">EXPEDICIÓN &amp; DESPACHOS</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Gestión de Pedidos &amp; Despacho</h1>
+<p class="text-xs text-slate-500 mt-0.5">Control de bultos y estados de verificación de pedidos.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 transition-colors" onclick="exportarPedidos()">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              Descargar XLS
+            </button>
+</div>
+</div>
+<!-- KPI Strip: Pedidos -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="bg-white p-3.5 rounded-xl border border-slate-200">
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">TOTAL PEDIDOS</span>
+<div class="text-xl font-black text-slate-900 mt-1" id="kpi-pedidos-total">--</div>
+</div>
+<div class="bg-white p-3.5 rounded-xl border border-slate-200">
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">TOTAL UNIDADES</span>
+<div class="text-xl font-black text-slate-900 mt-1" id="kpi-pedidos-unidades">--</div>
+</div>
+<div class="bg-white p-3.5 rounded-xl border border-slate-200">
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">TOTAL BULTOS</span>
+<div class="text-xl font-black text-slate-900 mt-1" id="kpi-pedidos-bultos">--</div>
+</div>
+<div class="bg-white p-3.5 rounded-xl border border-slate-200 border-l-4 border-l-emerald-500">
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">CUMPLIDOS</span>
+<div class="text-xl font-black text-emerald-600 mt-1" id="kpi-pedidos-cumplidos">--</div>
+</div>
+</div>
+<!-- Pedidos Table -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-800 tracking-wide" id="pedidos-count">Cargando...</span>
+</div>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10.5px]">
+<th class="py-2.5 px-3 font-semibold">FECHA PEDIDO</th>
+<th class="py-2.5 px-3 font-semibold">BPCS</th>
+<th class="py-2.5 px-3 font-semibold">DOCUMENTO</th>
+<th class="py-2.5 px-3 font-semibold">DESTINATARIO</th>
+<th class="py-2.5 px-3 font-semibold">FECHA CITA</th>
+<th class="py-2.5 px-3 font-semibold text-right">CANTIDAD</th>
+<th class="py-2.5 px-3 font-semibold text-right">BULTOS</th>
+<th class="py-2.5 px-3 font-semibold">USUARIO</th>
+<th class="py-2.5 px-3 font-semibold text-center">ESTATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="tbody-pedidos">
+<tr class="loading-row"><td colspan="9">Cargando pedidos...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewPedidos -->
+<!-- ========================================== -->
+<!-- VIEW 4: MOVIMIENTOS INTERNOS (TRFMAS) -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewMovimientos -->
+<section class="view-panel space-y-6 hidden" id="view-movimientos">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">CONTROL &amp; MOVIMIENTO</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Registro de Movimientos Internos (TRFMAS)</h1>
+<p class="text-xs text-slate-500 mt-0.5">Trazabilidad y auditoría de transferencias entre bodegas, racks y ubicaciones en tiempo real.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 shadow-xs" onclick="exportarMovimientos()">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              Exportar Excel TRFMAS
+            </button>
+</div>
+</div>
+<!-- 4 Metric Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">TOTAL TRASLADOS</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-mov-total">--</div>
+<p class="text-[11px] text-slate-400 mt-1">Registrados en sistema TRFMAS</p>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">USUARIOS ACTIVOS</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-mov-usuarios">--</div>
+<p class="text-[11px] text-slate-400 mt-1">Registrando movimientos</p>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">BODEGA MÁS ACTIVA</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-mov-bodega">--</div>
+<p class="text-[11px] text-slate-400 mt-1">Concentración de flujo</p>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">UBICACIONES AFECTADAS</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-mov-ubicaciones">--</div>
+<p class="text-[11px] text-slate-400 mt-1">Origen + destino únicos</p>
+</div>
+</div>
+<!-- Filter Row -->
+<div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
+<input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-52" id="filter-codigo-mov" oninput="debouncedFilterMov()" placeholder="Código / SKU..." type="text"/>
+<input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-36" id="filter-lote-mov" oninput="debouncedFilterMov()" placeholder="Lote BPCS..." type="text"/>
+<button class="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 ml-auto" onclick="filterMov()">
+            Filtrar
+          </button>
+</div>
+<!-- Table TRFMAS -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<span class="text-xs font-bold text-slate-800" id="mov-count">Cargando...</span>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10px]">
+<th class="py-2.5 px-3 font-semibold">FECHA / HORA</th>
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">LOTE BPCS</th>
+<th class="py-2.5 px-3 font-semibold">CANT.</th>
+<th class="py-2.5 px-3 font-semibold">UBIC. ORIGEN</th>
+<th class="py-2.5 px-3 font-semibold">UBIC. DESTINO</th>
+<th class="py-2.5 px-3 font-semibold">MOTIVO</th>
+<th class="py-2.5 px-3 font-semibold">USUARIO</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 font-sans text-slate-700" id="tbody-movimientos">
+<tr class="loading-row"><td colspan="8">Cargando movimientos...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewMovimientos -->
+<!-- ========================================== -->
+<!-- VIEW 5: REPORTE DE BAJAS & MERMA -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewBajas -->
+<section class="view-panel space-y-6 hidden" id="view-bajas">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-rose-600 font-semibold">CONTROL DE CALIDAD &amp; MERMA</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Reporte de Bajas y Producto Vencido</h1>
+<p class="text-xs text-slate-500 mt-0.5">Seguimiento de lotes no conformes y productos bloqueados para venta (calculado desde Saldo).</p>
+</div>
+</div>
+<!-- Bajas KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[11px] font-bold text-slate-500 uppercase">SKUs EN BAJA (VENCIDOS)</span>
+<div class="text-2xl font-black text-rose-600 mt-1" id="kpi-bajas-skus">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[11px] font-bold text-slate-500 uppercase">UNIDADES VENCIDAS</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-bajas-unidades">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-[11px] font-bold text-slate-500 uppercase">MOTIVO PRINCIPAL</span>
+<div class="text-2xl font-black text-amber-600 mt-1">Vencimiento</div>
+</div>
+</div>
+<!-- Table Bajas -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<span class="text-xs font-bold text-slate-800">LISTADO DE LOTES VENCIDOS</span>
+<span class="text-xs text-rose-600 font-medium">Estado: No despachable</span>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10px]">
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">DESCRIPCIÓN</th>
+<th class="py-2.5 px-3 font-semibold">LOTE BPCS</th>
+<th class="py-2.5 px-3 font-semibold">FECHA EXPIRA</th>
+<th class="py-2.5 px-3 font-semibold">WHS</th>
+<th class="py-2.5 px-3 font-semibold text-right">CANT.</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="tbody-bajas">
+<tr class="loading-row"><td colspan="6">Cargando...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewBajas -->
+<!-- ========================================== -->
+<!-- VIEW 6: MAESTRA DE ARTÍCULOS & SKU -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewArticulos -->
+<section class="view-panel space-y-6 hidden" id="view-articulos">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">CATÁLOGO MAESTRO</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Maestra de Artículos &amp; SKU</h1>
+<p class="text-xs text-slate-500 mt-0.5">Base maestra de referencias comerciales, códigos de barra y parametrización logística.</p>
+</div>
+</div>
+<!-- Quick Summary Articulos -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">TOTAL ARTÍCULOS</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="kpi-articulos-total">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">MARCAS / FAMILIAS</span>
+<div class="text-2xl font-black text-sky-600 mt-1" id="kpi-articulos-marcas">--</div>
+</div>
+</div>
+<div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
+<input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-64" id="filter-articulos" oninput="debouncedFilterArticulos()" placeholder="Buscar por código o descripción..." type="text"/>
+</div>
+<!-- Articulos Table -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<span class="text-xs font-bold text-slate-800" id="articulos-count">Cargando...</span>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10.5px]">
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">CÓDIGO BPCS</th>
+<th class="py-2.5 px-3 font-semibold">DESCRIPCIÓN DEL ARTÍCULO</th>
+<th class="py-2.5 px-3 font-semibold">MARCA / FAMILIA</th>
+<th class="py-2.5 px-3 font-semibold font-mono">EAN 13</th>
+<th class="py-2.5 px-3 font-semibold">UUxEMPAQ</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="tbody-articulos">
+<tr class="loading-row"><td colspan="6">Cargando artículos...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewArticulos -->
+<!-- ========================================== -->
+<!-- VIEW 7: ANAQUELES, RACKS & BINES -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewAnaqueles -->
+<section class="view-panel space-y-6 hidden" id="view-anaqueles">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">TOPOLOGÍA DE ALMACÉN</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Maestra de Ubicaciones &amp; Anaqueles</h1>
+<p class="text-xs text-slate-500 mt-0.5">Relación ubicación → artículo dentro de la Nave.</p>
+</div>
+</div>
+<!-- Racks KPIs -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">UBICACIONES REGISTRADAS</span>
+<div class="text-xl font-black text-slate-900 mt-1" id="kpi-anaqueles-ubicaciones">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">SKUs UBICADOS</span>
+<div class="text-xl font-black text-slate-900 mt-1" id="kpi-anaqueles-skus">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">ÚLTIMA ACTUALIZACIÓN</span>
+<div class="text-xl font-black text-emerald-600 mt-1" id="kpi-anaqueles-fecha">--</div>
+</div>
+</div>
+<div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
+<input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-64" id="filter-anaqueles" oninput="debouncedFilterAnaqueles()" placeholder="Buscar por ubicación o código..." type="text"/>
+</div>
+<!-- Racks Table -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+<div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+<span class="text-xs font-bold text-slate-800" id="anaqueles-count">Cargando...</span>
+</div>
+<div class="overflow-x-auto" style="max-height:600px; overflow-y:auto;">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10.5px]">
+<th class="py-2.5 px-3 font-semibold">UBICACIÓN</th>
+<th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
+<th class="py-2.5 px-3 font-semibold">DESCRIPCIÓN</th>
+<th class="py-2.5 px-3 font-semibold">FAMILIA</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="tbody-anaqueles">
+<tr class="loading-row"><td colspan="4">Cargando ubicaciones...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewAnaqueles -->
+<!-- ========================================== -->
+<!-- VIEW 8: MATRIZ DE OCUPABILIDAD -->
+<!-- ========================================== -->
+<!-- BEGIN: ViewOcupabilidad -->
+<section class="view-panel space-y-6 hidden" id="view-ocupabilidad">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-[11px] font-medium text-slate-400 tracking-wider uppercase flex items-center gap-1.5">
+<span>SISTEMA DE GESTIÓN DE INVENTARIO</span>
+<span>•</span>
+<span class="text-sky-600 font-semibold">MONITOREO DE CAPACIDAD</span>
+</div>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Matriz Mensual de Ocupabilidad - Nave 2 Lurín</h1>
+<p class="text-xs text-slate-500 mt-0.5">Seguimiento mensual/diario de posiciones ocupadas vs capacidad contratada.</p>
+</div>
+</div>
+<!-- Metrics Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">CAPACIDAD CONTRATADA</span>
+<div class="text-2xl font-black text-slate-900 mt-1" id="ocup-capacidad">-- pos.</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">PROMEDIO MES ACTUAL</span>
+<div class="text-2xl font-black text-emerald-600 mt-1" id="ocup-promedio">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">PICO MÁXIMO MES</span>
+<div class="text-2xl font-black text-amber-600 mt-1" id="ocup-pico">--</div>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200">
+<span class="text-xs font-bold text-slate-500 uppercase">DISPONIBILIDAD HOY</span>
+<div class="text-2xl font-black text-sky-600 mt-1" id="ocup-disponible">--</div>
+</div>
+</div>
+<!-- Matriz Visual Matrix Table -->
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs p-4">
+<h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide mb-3">Matriz de Ocupabilidad por Mes / Día</h3>
+<div class="overflow-x-auto" style="max-height:500px; overflow-y:auto;">
+<table class="w-full text-center text-xs border border-slate-200" id="tabla-ocupabilidad">
+<thead class="bg-slate-900 text-white font-mono text-[10px]">
+<tr id="ocup-header-row">
+<th class="p-2 border border-slate-700 text-left">MES</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 font-mono text-slate-700" id="tbody-ocupabilidad">
+<tr class="loading-row"><td colspan="15">Cargando matriz...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: ViewOcupabilidad -->
+</main>
+<!-- END: MainContentWrapper -->
+<!-- BEGIN: Footer -->
+<footer class="h-8 bg-white border-t border-slate-200 px-6 flex items-center justify-between text-[11px] text-slate-500 select-none">
+<div>
+<span>Omar Bernales WMS • v3.9 Enterprise</span>
+<span class="mx-2">|</span>
+<span>Licencia: Corporativo Ludyco S.A.C.</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5 text-emerald-600 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Sistemas Operativos 100%
+        </span>
+<span class="text-slate-300">•</span>
+<span class="font-mono text-slate-400">Terminal ID: LUR-NV2-01</span>
+</div>
+</footer>
+<!-- END: Footer -->
+</div>
+<!-- Interactive Toast Notification Element -->
+<div class="fixed bottom-10 right-10 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs border border-slate-700 pointer-events-none" id="toast">
+<div class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></div>
+<span id="toast-message">Notificación del sistema</span>
+</div>
+<!-- Modal general -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center" id="wms-modal">
+<div class="absolute inset-0 bg-black/40" onclick="cerrarModal()"></div>
+<div class="relative rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6" style="background:#FFFFFF;border:1px solid #E5E5E5;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-[15px]" id="wms-modal-title" style="color:#1A1A1A;"></h3>
+<button class="transition-colors" onclick="cerrarModal()" style="color:#999;">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="text-center" id="wms-modal-body" style="color:#333;"></div>
+<button class="btn-primary mt-5 w-full py-2 rounded-md text-[13px] bg-sky-600 text-white font-semibold hover:bg-sky-700" onclick="cerrarModal()">Cerrar</button>
+</div>
+</div>
+
+<!-- BEGIN: DataLayer & InteractiveScripts -->
+<script data-purpose="data-layer">
+  /* =========================================================
+     CONFIG: URLs de los Google Sheets publicados (CSV)
+     ========================================================= */
+  const CSV_URLS = {
+    saldo:        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSiwZ152PjVPONOBERa48aRIXkO6A3aMVrdPY7Y-BYGfD0tNYXpHrZ_UWlFktgntWnIlxIRa_QMOxab/pub?gid=273620597&single=true&output=csv',
+    movimiento:   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSiwZ152PjVPONOBERa48aRIXkO6A3aMVrdPY7Y-BYGfD0tNYXpHrZ_UWlFktgntWnIlxIRa_QMOxab/pub?gid=2101441845&single=true&output=csv',
+    articulos:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQA52ok_jIZmFHegReiu7VdYmWtDvlft5KgNJy6KhXkVFPucA14Lj4s_2vKKPKp6X52bNKKbcAWr8qX/pub?gid=649948627&single=true&output=csv',
+    anaqueles:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQA52ok_jIZmFHegReiu7VdYmWtDvlft5KgNJy6KhXkVFPucA14Lj4s_2vKKPKp6X52bNKKbcAWr8qX/pub?gid=1658766492&single=true&output=csv',
+    ocupabilidad: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSiwZ152PjVPONOBERa48aRIXkO6A3aMVrdPY7Y-BYGfD0tNYXpHrZ_UWlFktgntWnIlxIRa_QMOxab/pub?gid=322542660&single=true&output=csv',
+    pedido:       'https://docs.google.com/spreadsheets/d/e/2PACX-1vQbwAInbiFJnCxdliYTfkXYjL_M0Tt5LAl1kzAEcietc_ztNgP-dY7Y6hhNioIhaJBJxvY1fxdWg50D/pub?gid=893665091&single=true&output=csv',
+    ingreso:      'https://docs.google.com/spreadsheets/d/e/2PACX-1vTP93POMP-LlFfMP_eNyhOJKgNnCkNZcMMOEliimWv0QJz0pKTaDXhxiXcc_HuGCQM8d9n-uxCmdFOc/pub?gid=1508679406&single=true&output=csv'
+  };
+
+  // Almacén de datos en memoria (crudo + filtrado para render)
+  const DATA = { saldo:[], movimiento:[], articulos:[], anaqueles:[], ocupabilidad:[], pedido:[], ingreso:[] };
+  let SALDO_MAP_BY_CODIGO = {}; // codigo -> [filas]
+
+  /* =========================================================
+     PARSER DE CSV (robusto: soporta comillas y comas internas)
+     ========================================================= */
+  function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i], next = text[i + 1];
+      if (inQuotes) {
+        if (c === '"' && next === '"') { field += '"'; i++; }
+        else if (c === '"') { inQuotes = false; }
+        else { field += c; }
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\r') { /* skip */ }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else { field += c; }
+      }
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    const headers = rows[0].map(h => h.trim());
+    const out = [];
+    for (let r = 1; r < rows.length; r++) {
+      if (rows[r].length === 1 && rows[r][0] === '') continue;
+      const obj = {};
+      headers.forEach((h, idx) => { obj[h] = (rows[r][idx] ?? '').trim(); });
+      out.push(obj);
+    }
+    return out;
+  }
+
+  async function fetchCSV(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    return parseCSV(text);
+  }
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+  function num(v) {
+    if (v === undefined || v === null || v === '') return 0;
+    const n = parseFloat(String(v).replace(/,/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
+  function fmtNum(n) { return Math.round(n).toLocaleString('es-PE'); }
+  function parseFechaCompacta(v) {
+    // admite YYYYMMDD (20281218) o DD/MM/YYYY
+    if (!v) return null;
+    v = String(v).trim();
+    if (/^\d{8}$/.test(v)) {
+      const y = v.slice(0,4), m = v.slice(4,6), d = v.slice(6,8);
+      const dt = new Date(`${y}-${m}-${d}`);
+      return isNaN(dt) ? null : dt;
+    }
+    const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) {
+      const dt = new Date(`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`);
+      return isNaN(dt) ? null : dt;
+    }
+    const dt = new Date(v);
+    return isNaN(dt) ? null : dt;
+  }
+  function fmtFechaCompacta(v) {
+    const dt = parseFechaCompacta(v);
+    if (!dt) return v || '-';
+    return dt.toLocaleDateString('es-PE');
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function debounce(fn, ms) {
+    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  }
+
+  /* =========================================================
+     CARGA GENERAL
+     ========================================================= */
+  async function cargarTodo(manual) {
+    document.getElementById('sync-status').textContent = 'Sincronizando...';
+    if (manual) triggerToast('Sincronizando datos con Google Sheets...');
+    const tareas = [
+      ['saldo', CSV_URLS.saldo],
+      ['movimiento', CSV_URLS.movimiento],
+      ['articulos', CSV_URLS.articulos],
+      ['anaqueles', CSV_URLS.anaqueles],
+      ['ocupabilidad', CSV_URLS.ocupabilidad],
+      ['pedido', CSV_URLS.pedido],
+      ['ingreso', CSV_URLS.ingreso],
+    ];
+    const resultados = await Promise.allSettled(tareas.map(([, url]) => fetchCSV(url)));
+    resultados.forEach((r, i) => {
+      const key = tareas[i][0];
+      if (r.status === 'fulfilled') { DATA[key] = r.value; }
+      else { console.error('Error cargando', key, r.reason); DATA[key] = DATA[key] || []; }
+    });
+
+    indexarSaldoPorCodigo();
+    renderSaldo();
+    renderMovimientos();
+    renderIngresos();
+    renderPedidos();
+    renderBajas();
+    renderArticulos();
+    renderAnaqueles();
+    renderOcupabilidad();
+    poblarFiltrosDinamicos();
+
+    document.getElementById('sync-status').textContent = 'Sistemas Operativos 100%';
+    const ahora = new Date();
+    document.getElementById('last-sync-label').textContent = 'Act: ' + ahora.toLocaleString('es-PE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    if (manual) triggerToast('Datos sincronizados correctamente');
+  }
+
+  function indexarSaldoPorCodigo() {
+    SALDO_MAP_BY_CODIGO = {};
+    DATA.saldo.forEach(row => {
+      const cod = (row['CODIGO'] || row['Codigo'] || row['CÓDIGO'] || '').toUpperCase().trim();
+      if (!cod) return;
+      (SALDO_MAP_BY_CODIGO[cod] ||= []).push(row);
+    });
+  }
+
+  /* =========================================================
+     RENDER: SALDO
+     ========================================================= */
+  function getSaldoField(row, ...keys) {
+    for (const k of keys) if (row[k] !== undefined) return row[k];
+    return '';
+  }
+
+  function renderSaldo(filtered) {
+    const data = filtered || DATA.saldo;
+    const tbody = document.getElementById('tbody-saldo');
+    if (!DATA.saldo.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="10">No se pudo cargar el Sheet de Saldo.</td></tr>';
+      return;
+    }
+    if (!data.length) {
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="10">Sin resultados para el filtro aplicado.</td></tr>';
+    } else {
+      const hoy = new Date();
+      const rowsHtml = data.slice(0, 500).map(r => {
+        const codigo = getSaldoField(r,'CODIGO','Codigo','CÓDIGO');
+        const desc = getSaldoField(r,'DESCRIPCION','Descripcion','DESCRIPCIÓN','Article description');
+        const whs = getSaldoField(r,'WHS','BODEGA');
+        const ubic = getSaldoField(r,'UBICACION','UBICACIÓN','Ubicacion');
+        const loteBpcs = getSaldoField(r,'LOTE BPCS','LOTE_BPCS');
+        const lote = getSaldoField(r,'LOTE','LOTE FISICO');
+        const expira = getSaldoField(r,'EXPIRA','FECHA EXPIRA','VENCIMIENTO');
+        const familia = getSaldoField(r,'FAMILIA','LINEA','MARCA');
+        const cant = num(getSaldoField(r,'CANTIDAD','SALDO','STOCK','QUANTITY'));
+        const dtExp = parseFechaCompacta(expira);
+        const vencido = dtExp && dtExp < hoy;
+        return `<tr class="hover:bg-slate-50/80 transition-colors ${vencido?'bg-rose-50/20':''}">
+          <td class="py-2.5 px-3 font-mono font-medium text-slate-900">${escapeHtml(codigo)}</td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml(desc)}</td>
+          <td class="py-2.5 px-3 text-slate-500 font-mono">${escapeHtml(whs)}</td>
+          <td class="py-2.5 px-3 font-mono text-sky-700 font-medium">${escapeHtml(ubic)}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-500">${escapeHtml(loteBpcs)}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(lote)}</td>
+          <td class="py-2.5 px-3 font-mono ${vencido?'text-rose-600 font-semibold':'text-slate-500'}">${fmtFechaCompacta(expira)}</td>
+          <td class="py-2.5 px-3 text-slate-500">${escapeHtml(familia)}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900 text-right">${fmtNum(cant)}</td>
+          <td class="py-2.5 px-3 text-center">${vencido ? '<span class="badge-error">VENCIDO</span>' : '<span class="badge-ok">OK</span>'}</td>
+        </tr>`;
+      }).join('');
+      tbody.innerHTML = rowsHtml;
+    }
+
+    document.getElementById('saldo-count').textContent = `${data.length.toLocaleString('es-PE')} ítems encontrados de ${DATA.saldo.length.toLocaleString('es-PE')} totales`;
+
+    // KPIs
+    const hoy2 = new Date();
+    let stockTotal = 0, vencidosUnid = 0, lotesVigentes = 0, lotesVencidos = 0;
+    DATA.saldo.forEach(r => {
+      const cant = num(getSaldoField(r,'CANTIDAD','SALDO','STOCK','QUANTITY'));
+      const dtExp = parseFechaCompacta(getSaldoField(r,'EXPIRA','FECHA EXPIRA','VENCIMIENTO'));
+      const vencido = dtExp && dtExp < hoy2;
+      stockTotal += cant;
+      if (vencido) { vencidosUnid += cant; lotesVencidos++; } else { lotesVigentes++; }
+    });
+    document.getElementById('kpi-stock-total').textContent = fmtNum(stockTotal);
+    document.getElementById('kpi-stock-total-sub').textContent = `${DATA.saldo.length.toLocaleString('es-PE')} registros de saldo`;
+    document.getElementById('kpi-lotes-vigentes').textContent = fmtNum(lotesVigentes);
+    const totalLotes = lotesVigentes + lotesVencidos;
+    document.getElementById('kpi-eficiencia').textContent = totalLotes ? ((lotesVigentes/totalLotes)*100).toFixed(1)+'% Apto' : '--';
+    document.getElementById('kpi-vencidos').textContent = fmtNum(vencidosUnid);
+    document.getElementById('badge-alertas').textContent = lotesVencidos;
+    document.getElementById('lotes-disponible').textContent = fmtNum(stockTotal - vencidosUnid);
+    document.getElementById('lotes-vencidos').textContent = fmtNum(vencidosUnid);
+
+    // Recientes movimientos (top 6 por fecha)
+  }
+
+  function poblarFiltrosDinamicos() {
+    // WHS de saldo
+    const sel = document.getElementById('filter-whs-saldo');
+    const whsSet = new Set();
+    DATA.saldo.forEach(r => { const w = getSaldoField(r,'WHS','BODEGA'); if (w) whsSet.add(w); });
+    sel.innerHTML = '<option value="">Todos los WHS</option>' + [...whsSet].sort().map(w => `<option value="${escapeHtml(w)}">WHS: ${escapeHtml(w)}</option>`).join('');
+
+    // Meses de ingreso
+    const selMes = document.getElementById('filter-mes-ingreso');
+    const mesesSet = new Set();
+    DATA.ingreso.forEach(r => { if (r['MES']) mesesSet.add(r['MES']); });
+    selMes.innerHTML = '<option value="">Todos</option>' + [...mesesSet].map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+  }
+
+  function filterSaldo() {
+    const whs = document.getElementById('filter-whs-saldo').value.toUpperCase();
+    const q = document.getElementById('filter-codigo-saldo').value.toUpperCase().trim();
+    const filtered = DATA.saldo.filter(r => {
+      const rw = (getSaldoField(r,'WHS','BODEGA') || '').toUpperCase();
+      const cod = (getSaldoField(r,'CODIGO','Codigo','CÓDIGO') || '').toUpperCase();
+      const lote = (getSaldoField(r,'LOTE BPCS','LOTE_BPCS') || '').toUpperCase();
+      const lote2 = (getSaldoField(r,'LOTE') || '').toUpperCase();
+      if (whs && rw !== whs) return false;
+      if (q && !cod.includes(q) && !lote.includes(q) && !lote2.includes(q)) return false;
+      return true;
+    });
+    renderSaldo(filtered);
+  }
+  const debouncedFilterSaldo = debounce(filterSaldo, 300);
+
+  /* =========================================================
+     QUICK SEARCH POR CÓDIGO
+     ========================================================= */
+  function quickSearchCodigo() {
+    const val = document.getElementById('quick-codigo-input').value.trim().toUpperCase();
+    const resultEl = document.getElementById('quick-search-result');
+    if (!val) { triggerToast('Por favor ingrese un código'); return; }
+    const matches = SALDO_MAP_BY_CODIGO[val] || [];
+    if (!matches.length) {
+      resultEl.innerHTML = `<span class="text-rose-600 font-medium">Código "${escapeHtml(val)}" no encontrado en Saldo.</span>`;
+      triggerToast('Código no encontrado');
+      return;
+    }
+    const totalCant = matches.reduce((s, r) => s + num(getSaldoField(r,'CANTIDAD','SALDO','STOCK','QUANTITY')), 0);
+    const ubicaciones = [...new Set(matches.map(r => getSaldoField(r,'UBICACION','UBICACIÓN','Ubicacion')).filter(Boolean))];
+    resultEl.innerHTML = `
+      <div class="p-2 bg-emerald-50 border border-emerald-100 rounded-lg">
+        <div class="font-bold text-slate-800">${escapeHtml(val)}</div>
+        <div>Saldo total: <span class="font-mono font-bold">${fmtNum(totalCant)}</span> unid.</div>
+        <div>Ubicaciones (${matches.length} lotes): <span class="font-mono">${ubicaciones.slice(0,4).map(escapeHtml).join(', ')}${ubicaciones.length>4?'…':''}</span></div>
+      </div>`;
+    triggerToast(`Código encontrado: ${val} (${matches.length} lotes)`);
+    // Filtra también la tabla principal
+    document.getElementById('filter-codigo-saldo').value = val;
+    filterSaldo();
+  }
+
+  function globalSearch(val) {
+    val = (val || '').trim();
+    if (!val) return;
+    document.getElementById('quick-codigo-input').value = val;
+    navigateTo('saldo');
+    quickSearchCodigo();
+  }
+
+  /* =========================================================
+     RENDER: MOVIMIENTOS (TRFMAS)
+     ========================================================= */
+  function movField(r, ...keys) { for (const k of keys) if (r[k] !== undefined) return r[k]; return ''; }
+
+  function renderMovimientos(filtered) {
+    const data = filtered || DATA.movimiento;
+    const tbody = document.getElementById('tbody-movimientos');
+    const tbodyRecientes = document.getElementById('tbody-mov-recientes');
+    if (!DATA.movimiento.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="8">No se pudo cargar el Sheet de Movimientos.</td></tr>';
+      tbodyRecientes.innerHTML = '<tr class="error-row"><td colspan="8">Sin datos.</td></tr>';
+    } else {
+      const rowsHtml = data.slice(0, 500).map(r => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-mono text-slate-500">${escapeHtml(movField(r,'FECHA','FECHA/HORA','FECHA HORA'))}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(movField(r,'CODIGO','CÓDIGO'))}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(movField(r,'LOTE BPCS','LOTE_BPCS'))}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${fmtNum(num(movField(r,'CANTIDAD','CANT')))}</td>
+          <td class="py-2.5 px-3 font-mono text-amber-700">${escapeHtml(movField(r,'UBIC ORIGEN','UBICACION ORIGEN','ORIGEN'))}</td>
+          <td class="py-2.5 px-3 font-mono text-sky-700 font-medium">${escapeHtml(movField(r,'UBIC DESTINO','UBICACION DESTINO','DESTINO'))}</td>
+          <td class="py-2.5 px-3 text-slate-600">${escapeHtml(movField(r,'MOTIVO','TIPO'))}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600 text-[11px]">${escapeHtml(movField(r,'USUARIO','NOM_USUARIO'))}</td>
+        </tr>`).join('');
+      tbody.innerHTML = rowsHtml || '<tr class="loading-row"><td colspan="8">Sin resultados.</td></tr>';
+
+      const recientes = DATA.movimiento.slice(-6).reverse().map(r => `
+        <tr class="hover:bg-slate-50/70">
+          <td class="py-2 px-3 font-mono text-slate-500">${escapeHtml(movField(r,'FECHA','FECHA/HORA'))}</td>
+          <td class="py-2 px-3 font-mono font-medium text-slate-900">${escapeHtml(movField(r,'CODIGO','CÓDIGO'))}</td>
+          <td class="py-2 px-3 font-mono text-slate-600">${escapeHtml(movField(r,'LOTE BPCS','LOTE_BPCS'))}</td>
+          <td class="py-2 px-3 font-mono text-amber-700">${escapeHtml(movField(r,'UBIC ORIGEN','ORIGEN'))}</td>
+          <td class="py-2 px-3 font-mono text-sky-700 font-medium">${escapeHtml(movField(r,'UBIC DESTINO','DESTINO'))}</td>
+          <td class="py-2 px-3 font-mono font-bold text-slate-900 text-right">${fmtNum(num(movField(r,'CANTIDAD','CANT')))}</td>
+          <td class="py-2 px-3 text-slate-600">${escapeHtml(movField(r,'MOTIVO','TIPO'))}</td>
+          <td class="py-2 px-3 text-center"><span class="badge-ok">OK</span></td>
+        </tr>`).join('');
+      tbodyRecientes.innerHTML = recientes || '<tr class="loading-row"><td colspan="8">Sin movimientos.</td></tr>';
+    }
+
+    document.getElementById('mov-count').textContent = `${data.length.toLocaleString('es-PE')} REGISTROS`;
+    document.getElementById('badge-movimientos').textContent = DATA.movimiento.length;
+    document.getElementById('kpi-mov-total').textContent = fmtNum(DATA.movimiento.length);
+    const usuarios = new Set(DATA.movimiento.map(r => movField(r,'USUARIO','NOM_USUARIO')).filter(Boolean));
+    document.getElementById('kpi-mov-usuarios').textContent = usuarios.size;
+    const bodegas = {};
+    DATA.movimiento.forEach(r => { const b = movField(r,'UBIC ORIGEN','ORIGEN'); if (b) bodegas[b] = (bodegas[b]||0)+1; });
+    const topBodega = Object.entries(bodegas).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('kpi-mov-bodega').textContent = topBodega ? topBodega[0] : '--';
+    const ubics = new Set();
+    DATA.movimiento.forEach(r => { ubics.add(movField(r,'UBIC ORIGEN','ORIGEN')); ubics.add(movField(r,'UBIC DESTINO','DESTINO')); });
+    ubics.delete('');
+    document.getElementById('kpi-mov-ubicaciones').textContent = ubics.size;
+  }
+
+  function filterMov() {
+    const cod = document.getElementById('filter-codigo-mov').value.toUpperCase().trim();
+    const lote = document.getElementById('filter-lote-mov').value.toUpperCase().trim();
+    const filtered = DATA.movimiento.filter(r => {
+      const c = (movField(r,'CODIGO','CÓDIGO') || '').toUpperCase();
+      const l = (movField(r,'LOTE BPCS','LOTE_BPCS') || '').toUpperCase();
+      if (cod && !c.includes(cod)) return false;
+      if (lote && !l.includes(lote)) return false;
+      return true;
+    });
+    renderMovimientos(filtered);
+  }
+  const debouncedFilterMov = debounce(filterMov, 300);
+
+  /* =========================================================
+     RENDER: INGRESOS
+     ========================================================= */
+  function renderIngresos(filtered) {
+    const data = filtered || DATA.ingreso;
+    const tbody = document.getElementById('tbody-ingresos');
+    if (!DATA.ingreso.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="11">No se pudo cargar el Sheet de Ingresos.</td></tr>';
+    } else {
+      const rowsHtml = data.slice(0, 500).map(r => {
+        const estatus = (r['ESTATUS'] || '').toUpperCase();
+        const badge = estatus === 'CONFORME' ? '<span class="badge-ok">CONFORME</span>'
+          : estatus === 'FALTANTE' ? '<span class="badge-error">FALTANTE</span>'
+          : estatus === 'SOBRANTE' ? '<span class="badge-warn">SOBRANTE</span>'
+          : estatus === 'BAJAS' ? '<span class="badge-error">BAJAS</span>'
+          : `<span class="badge-warn">${escapeHtml(estatus||'-')}</span>`;
+        return `<tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r['TIPO']==='IMP'?'bg-sky-100 text-sky-800':'bg-slate-100 text-slate-700'}">${escapeHtml(r['TIPO'])}</span></td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml(r['MES'])}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(r['ORD'])}</td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml(r['REFERENTE'])}</td>
+          <td class="py-2.5 px-3 font-mono text-sky-700 font-medium">${escapeHtml(r['DOCUMENTO'])}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(r['CODIGO'])}</td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${escapeHtml((r['Article description']||'').slice(0,40))}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(r['LOTE'])}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-500">${fmtFechaCompacta(r['EXPIRA'])}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900 text-right">${fmtNum(num(r['QUANTITY']||r['CANT']))}</td>
+          <td class="py-2.5 px-3 text-center">${badge}</td>
+        </tr>`;
+      }).join('');
+      tbody.innerHTML = rowsHtml || '<tr class="loading-row"><td colspan="11">Sin resultados.</td></tr>';
+    }
+    document.getElementById('ingresos-count').textContent = `${data.length.toLocaleString('es-PE')} REGISTROS ENCONTRADOS de ${DATA.ingreso.length.toLocaleString('es-PE')}`;
+  }
+
+  function filterIngresos() {
+    const tipo = document.getElementById('filter-tipo-ingreso').value;
+    const mes = document.getElementById('filter-mes-ingreso').value;
+    const ref = document.getElementById('filter-referente-ingreso').value.toUpperCase().trim();
+    const cod = document.getElementById('filter-codigo-ingreso').value.toUpperCase().trim();
+    const filtered = DATA.ingreso.filter(r => {
+      if (tipo && r['TIPO'] !== tipo) return false;
+      if (mes && r['MES'] !== mes) return false;
+      if (ref && !(r['REFERENTE']||'').toUpperCase().includes(ref)) return false;
+      if (cod && !(r['CODIGO']||'').toUpperCase().includes(cod)) return false;
+      return true;
+    });
+    renderIngresos(filtered);
+  }
+  const debouncedFilterIngresos = debounce(filterIngresos, 300);
+  function limpiarFiltrosIngresos() {
+    document.getElementById('filter-tipo-ingreso').value = '';
+    document.getElementById('filter-mes-ingreso').value = '';
+    document.getElementById('filter-referente-ingreso').value = '';
+    document.getElementById('filter-codigo-ingreso').value = '';
+    renderIngresos();
+  }
+
+  /* =========================================================
+     RENDER: PEDIDOS
+     ========================================================= */
+  function renderPedidos() {
+    const data = DATA.pedido;
+    const tbody = document.getElementById('tbody-pedidos');
+    if (!data.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="9">No se pudo cargar el Sheet de Pedidos.</td></tr>';
+    } else {
+      tbody.innerHTML = data.slice(0, 500).map(r => {
+        const estatus = (r['ESTATUS'] || '').toUpperCase();
+        const badge = estatus === 'CUMPLIDO' ? '<span class="badge-ok">CUMPLIDO</span>' : `<span class="badge-warn">${escapeHtml(estatus||'PENDIENTE')}</span>`;
+        return `<tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-mono text-slate-500">${fmtFechaCompacta(r['FECHA PEDIDO'])}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(r['BPCS'])}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(r['DOCUMENTO'])}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-800">${escapeHtml(r['DESTINATARIO'])}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-500">${fmtFechaCompacta(r['Fecha Cita'])}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900 text-right">${fmtNum(num(r['CANTIDAD']))}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-700 text-right">${fmtNum(num(r['BULTOS']))}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(r['USUARIO'])}</td>
+          <td class="py-2.5 px-3 text-center">${badge}</td>
+        </tr>`;
+      }).join('');
+    }
+    document.getElementById('pedidos-count').textContent = `${data.length.toLocaleString('es-PE')} PEDIDOS REGISTRADOS`;
+    document.getElementById('kpi-pedidos-total').textContent = fmtNum(data.length);
+    document.getElementById('kpi-pedidos-unidades').textContent = fmtNum(data.reduce((s,r)=>s+num(r['CANTIDAD']),0));
+    document.getElementById('kpi-pedidos-bultos').textContent = fmtNum(data.reduce((s,r)=>s+num(r['BULTOS']),0));
+    document.getElementById('kpi-pedidos-cumplidos').textContent = fmtNum(data.filter(r=>(r['ESTATUS']||'').toUpperCase()==='CUMPLIDO').length);
+  }
+
+  /* =========================================================
+     RENDER: BAJAS (derivado de Saldo vencido)
+     ========================================================= */
+  function renderBajas() {
+    const hoy = new Date();
+    const vencidos = DATA.saldo.filter(r => {
+      const dt = parseFechaCompacta(getSaldoField(r,'EXPIRA','FECHA EXPIRA','VENCIMIENTO'));
+      return dt && dt < hoy;
+    });
+    const tbody = document.getElementById('tbody-bajas');
+    tbody.innerHTML = vencidos.length ? vencidos.slice(0,500).map(r => `
+      <tr class="hover:bg-slate-50">
+        <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(getSaldoField(r,'CODIGO','Codigo'))}</td>
+        <td class="py-2.5 px-3 font-medium">${escapeHtml(getSaldoField(r,'DESCRIPCION','DESCRIPCIÓN'))}</td>
+        <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(getSaldoField(r,'LOTE BPCS'))}</td>
+        <td class="py-2.5 px-3 font-mono text-rose-600 font-bold">${fmtFechaCompacta(getSaldoField(r,'EXPIRA'))}</td>
+        <td class="py-2.5 px-3 font-mono text-slate-500">${escapeHtml(getSaldoField(r,'WHS'))}</td>
+        <td class="py-2.5 px-3 font-mono font-bold text-rose-700 text-right">${fmtNum(num(getSaldoField(r,'CANTIDAD','SALDO')))}</td>
+      </tr>`).join('') : '<tr class="loading-row"><td colspan="6">Sin lotes vencidos 🎉</td></tr>';
+    document.getElementById('kpi-bajas-skus').textContent = fmtNum(vencidos.length);
+    document.getElementById('kpi-bajas-unidades').textContent = fmtNum(vencidos.reduce((s,r)=>s+num(getSaldoField(r,'CANTIDAD','SALDO')),0));
+  }
+
+  /* =========================================================
+     RENDER: ARTICULOS
+     ========================================================= */
+  function renderArticulos(filtered) {
+    const data = filtered || DATA.articulos;
+    const tbody = document.getElementById('tbody-articulos');
+    if (!DATA.articulos.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="6">No se pudo cargar el Sheet de Artículos.</td></tr>';
+    } else {
+      tbody.innerHTML = data.slice(0, 800).map(r => {
+        const keys = Object.keys(r);
+        const codigo = r['CODIGO'] || r[keys[0]] || '';
+        return `<tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(codigo)}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(r['BPCS'] || r['CODIGO BPCS'] || '')}</td>
+          <td class="py-2.5 px-3 font-medium">${escapeHtml(r['DESCRIPCION'] || r['DESCRIPCIÓN'] || '')}</td>
+          <td class="py-2.5 px-3">${escapeHtml(r['MARCA'] || r['FAMILIA'] || r['LINEA'] || '')}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-500">${escapeHtml(r['EAN 13'] || r['EAN'] || '')}</td>
+          <td class="py-2.5 px-3 font-mono font-semibold">${escapeHtml(r['UNID CAJA'] || r['UUxEMPAQ'] || '')}</td>
+        </tr>`;
+      }).join('') || '<tr class="loading-row"><td colspan="6">Sin resultados.</td></tr>';
+    }
+    document.getElementById('articulos-count').textContent = `${data.length.toLocaleString('es-PE')} ARTÍCULOS`;
+    document.getElementById('kpi-articulos-total').textContent = fmtNum(DATA.articulos.length);
+    const marcas = new Set(DATA.articulos.map(r => r['MARCA'] || r['FAMILIA'] || r['LINEA']).filter(Boolean));
+    document.getElementById('kpi-articulos-marcas').textContent = marcas.size || '--';
+  }
+  function filterArticulos() {
+    const q = document.getElementById('filter-articulos').value.toUpperCase().trim();
+    if (!q) { renderArticulos(); return; }
+    const filtered = DATA.articulos.filter(r => JSON.stringify(r).toUpperCase().includes(q));
+    renderArticulos(filtered);
+  }
+  const debouncedFilterArticulos = debounce(filterArticulos, 300);
+
+  /* =========================================================
+     RENDER: ANAQUELES
+     ========================================================= */
+  function renderAnaqueles(filtered) {
+    const data = filtered || DATA.anaqueles;
+    const tbody = document.getElementById('tbody-anaqueles');
+    if (!DATA.anaqueles.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="4">No se pudo cargar el Sheet de Anaqueles.</td></tr>';
+    } else {
+      tbody.innerHTML = data.slice(0, 800).map(r => {
+        const keys = Object.keys(r);
+        return `<tr class="hover:bg-slate-50">
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-700">${escapeHtml(r['UBICACION'] || r[keys[0]] || '')}</td>
+          <td class="py-2.5 px-3 font-mono">${escapeHtml(r['CODIGO'] || '')}</td>
+          <td class="py-2.5 px-3">${escapeHtml(r['DESCRIPCION'] || '')}</td>
+          <td class="py-2.5 px-3">${escapeHtml(r['FAMILIA'] || r['MARCA'] || '')}</td>
+        </tr>`;
+      }).join('') || '<tr class="loading-row"><td colspan="4">Sin resultados.</td></tr>';
+    }
+    document.getElementById('anaqueles-count').textContent = `${data.length.toLocaleString('es-PE')} REGISTROS`;
+    document.getElementById('kpi-anaqueles-ubicaciones').textContent = fmtNum(new Set(DATA.anaqueles.map(r=>r['UBICACION'])).size);
+    document.getElementById('kpi-anaqueles-skus').textContent = fmtNum(new Set(DATA.anaqueles.map(r=>r['CODIGO'])).size);
+    document.getElementById('kpi-anaqueles-fecha').textContent = new Date().toLocaleDateString('es-PE');
+  }
+  function filterAnaqueles() {
+    const q = document.getElementById('filter-anaqueles').value.toUpperCase().trim();
+    if (!q) { renderAnaqueles(); return; }
+    const filtered = DATA.anaqueles.filter(r => JSON.stringify(r).toUpperCase().includes(q));
+    renderAnaqueles(filtered);
+  }
+  const debouncedFilterAnaqueles = debounce(filterAnaqueles, 300);
+
+  /* =========================================================
+     RENDER: OCUPABILIDAD (matriz mes x día)
+     ========================================================= */
+  function renderOcupabilidad() {
+    const data = DATA.ocupabilidad;
+    const headerRow = document.getElementById('ocup-header-row');
+    const tbody = document.getElementById('tbody-ocupabilidad');
+    if (!data.length) {
+      tbody.innerHTML = '<tr class="error-row"><td colspan="15">No se pudo cargar el Sheet de Ocupabilidad.</td></tr>';
+      return;
+    }
+    const headers = Object.keys(data[0]);
+    const labelCol = headers[0];
+    const dayCols = headers.slice(1);
+    headerRow.innerHTML = `<th class="p-2 border border-slate-700 text-left">${escapeHtml(labelCol)}</th>` +
+      dayCols.map(d => `<th class="p-2 border border-slate-700">${escapeHtml(d)}</th>`).join('');
+    tbody.innerHTML = data.map(row => {
+      const label = row[labelCol];
+      return `<tr>
+        <td class="p-2 font-sans font-bold text-slate-900 text-left bg-slate-50">${escapeHtml(label)}</td>
+        ${dayCols.map(d => `<td class="p-2">${escapeHtml(row[d] || '-')}</td>`).join('')}
+      </tr>`;
+    }).join('');
+
+    // KPIs simples: toma la primera fila numérica como referencia de ocupación
+    const numericRow = data.find(r => dayCols.some(d => num(r[d]) > 0));
+    if (numericRow) {
+      const vals = dayCols.map(d => num(numericRow[d])).filter(v => v > 0);
+      const max = Math.max(...vals, 0);
+      const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
+      const last = vals[vals.length-1] || 0;
+      document.getElementById('ocup-promedio').textContent = fmtNum(avg);
+      document.getElementById('ocup-pico').textContent = fmtNum(max);
+      document.getElementById('ocup-capacidad').textContent = fmtNum(max) + ' pos.';
+      document.getElementById('ocup-disponible').textContent = fmtNum(Math.max(max-last,0));
+      document.getElementById('ocup-actual-txt').textContent = `${fmtNum(last)} / ${fmtNum(max)}`;
+      document.getElementById('ocup-actual-bar').style.width = max ? `${Math.min((last/max)*100,100)}%` : '0%';
+    }
+  }
+
+  /* =========================================================
+     EXPORTACIONES A EXCEL (SheetJS) — placeholder listo para
+     conectar con los scripts de Apps Script de Kamill
+     ========================================================= */
+  function exportarAXlsx(data, filename, sheetName) {
+    if (!data || !data.length) { triggerToast('No hay datos para exportar'); return; }
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName || 'Datos');
+    XLSX.writeFile(wb, filename);
+    triggerToast('Archivo Excel generado: ' + filename);
+  }
+  function exportarSaldo()      { exportarAXlsx(DATA.saldo, 'Saldo_Ludyco.xlsx', 'Saldo'); }
+  function exportarIngresos()   { exportarAXlsx(DATA.ingreso, 'Ingresos_Ludyco.xlsx', 'Ingresos'); }
+  function exportarPedidos()    { exportarAXlsx(DATA.pedido, 'Pedidos_Ludyco.xlsx', 'Pedidos'); }
+  function exportarMovimientos(){ exportarAXlsx(DATA.movimiento, 'TRFMAS_Ludyco.xlsx', 'Movimientos'); }
+
+  function mostrarAlertas() {
+    const vencidos = DATA.saldo.filter(r => {
+      const dt = parseFechaCompacta(getSaldoField(r,'EXPIRA'));
+      return dt && dt < new Date();
+    }).length;
+    triggerToast(vencidos ? `${vencidos} lotes vencidos requieren atención` : 'No hay nuevas alertas críticas');
+  }
+  function cerrarModal() { document.getElementById('wms-modal').classList.add('hidden'); }
+
+  // Carga inicial
+  window.addEventListener('DOMContentLoaded', () => { cargarTodo(false); });
+</script>
+
+<script data-purpose="spa-navigation">
+    // SPA Route switcher
+    const views = ['saldo', 'ingresos', 'pedidos', 'movimientos', 'bajas', 'articulos', 'anaqueles', 'ocupabilidad'];
+
+    function navigateTo(viewId) {
+      // Hide all views
+      views.forEach(id => {
+        const el = document.getElementById('view-' + id);
+        if (el) {
+          el.classList.add('hidden');
+        }
+
+        // Reset sidebar buttons
+        const navBtn = document.getElementById('nav-' + id);
+        if (navBtn) {
+          navBtn.classList.remove('text-white', 'bg-sky-600', 'shadow-sm', 'shadow-sky-600/30');
+          navBtn.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
+
+          const bullet = navBtn.querySelector('.nav-bullet');
+          if (bullet) {
+            bullet.classList.remove('bg-emerald-400');
+            bullet.classList.add('bg-transparent');
+          }
+        }
+      });
+
+      // Show targeted view
+      const targetEl = document.getElementById('view-' + viewId);
+      if (targetEl) {
+        targetEl.classList.remove('hidden');
+      }
+
+      // Highlight active sidebar item
+      const activeNav = document.getElementById('nav-' + viewId);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800/60');
+        activeNav.classList.add('text-white', 'bg-sky-600', 'shadow-sm', 'shadow-sky-600/30');
+
+        const bullet = activeNav.querySelector('.nav-bullet');
+        if (bullet) {
+          bullet.classList.remove('bg-transparent');
+          bullet.classList.add('bg-emerald-400');
+        }
+      }
+    }
+
+    // Interactive Toast trigger
+    let toastTimer;
+    function triggerToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-message');
+      if (!toast || !msgEl) return;
+
+      msgEl.innerText = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+
+    // Live clock updater
+    function updateClock() {
+      const clockEl = document.getElementById('live-clock');
+      if (clockEl) {
+        const now = new Date();
+        clockEl.innerText = now.toLocaleTimeString('es-PE', { hour12: true });
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Keyboard shortcut CMD+K / CTRL+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('global-search');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    });
+  </script>
+<!-- END: InteractiveScripts -->
+</body></html>
