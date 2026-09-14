@@ -1650,14 +1650,15 @@
     setSaldo.forEach(u => { if (u.startsWith('1') || u.startsWith('2')) altura++; });
 
     // Anaquel / Ubicaciones de piso (fijo): total de posiciones físicas de anaquel
-    // según el maestro de Anaqueles (fijo, no depende de si está ocupada o vacía,
-    // porque igual no puede almacenar una paleta entera).
+    // (ubicaciones que empiezan con "210") tomadas del maestro de Anaqueles — es fijo
+    // porque, esté ocupada o vacía, esa ubicación nunca almacena una paleta entera.
     const setAnaqueles = new Set();
     DATA.anaqueles.forEach(r => {
       const ubic = (r['UBICACION'] || r['UBICACIÓN'] || Object.values(r)[0] || '').trim().toUpperCase();
       if (ubic) setAnaqueles.add(ubic);
     });
-    const anaquel = setAnaqueles.size;
+    let anaquel = 0;
+    setAnaqueles.forEach(u => { if (u.startsWith('210')) anaquel++; });
 
     return { altura, anaquel };
   }
