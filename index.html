@@ -752,7 +752,7 @@
 </section>
 <!-- END: ViewPedidos -->
 <!-- ========================================== -->
-<!-- VIEW 4: MOVIMIENTOS INTERNOS (TRFMAS) -->
+<!-- VIEW 4: MOVIMIENTOS INTERNOS (TRFMAN) -->
 <!-- ========================================== -->
 <!-- BEGIN: ViewMovimientos -->
 <section class="view-panel space-y-6 hidden" id="view-movimientos">
@@ -763,13 +763,13 @@
 <span>•</span>
 <span class="text-sky-600 font-semibold">CONTROL &amp; MOVIMIENTO</span>
 </div>
-<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Registro de Movimientos Internos (TRFMAS)</h1>
+<h1 class="text-xl font-bold text-slate-900 tracking-tight mt-0.5">Registro de Movimientos Internos (TRFMAN)</h1>
 <p class="text-xs text-slate-500 mt-0.5">Trazabilidad y auditoría de transferencias entre bodegas, racks y ubicaciones en tiempo real.</p>
 </div>
 <div class="flex items-center gap-2">
-<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 shadow-xs" onclick="exportarMovimientos()">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 shadow-xs" onclick="exportMovTRFMAN()" title="Exporta la selección (o todo lo filtrado) en formato TRFMAN y marca como Trasladado">
 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-              Exportar Excel TRFMAS
+              TRFMAN
             </button>
 </div>
 </div>
@@ -778,7 +778,7 @@
 <div class="bg-white p-4 rounded-xl border border-slate-200">
 <span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">TOTAL TRASLADOS</span>
 <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-mov-total">--</div>
-<p class="text-[11px] text-slate-400 mt-1">Registrados en sistema TRFMAS</p>
+<p class="text-[11px] text-slate-400 mt-1">Registrados en sistema TRFMAN</p>
 </div>
 <div class="bg-white p-4 rounded-xl border border-slate-200">
 <span class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 block">USUARIOS ACTIVOS</span>
@@ -800,11 +800,16 @@
 <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center gap-3">
 <input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-52" id="filter-codigo-mov" oninput="debouncedFilterMov()" placeholder="Código / SKU..." type="text"/>
 <input class="text-xs border border-slate-300 rounded-lg py-1.5 px-3 w-36" id="filter-lote-mov" oninput="debouncedFilterMov()" placeholder="Lote BPCS..." type="text"/>
+<select class="text-xs border border-slate-300 rounded-lg py-1.5 px-3" id="filter-estado-mov" onchange="filterMov()">
+<option value="">Estado: Todos</option>
+<option value="pendiente">Pendiente</option>
+<option value="trasladado">Trasladado</option>
+</select>
 <button class="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 ml-auto" onclick="filterMov()">
             Filtrar
           </button>
 </div>
-<!-- Table TRFMAS -->
+<!-- Table TRFMAN -->
 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
 <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
 <span class="text-xs font-bold text-slate-800" id="mov-count">Cargando...</span>
@@ -813,6 +818,7 @@
 <table class="w-full text-left text-xs border-collapse">
 <thead>
 <tr class="bg-[#111827] text-slate-200 uppercase tracking-wider text-[10px]">
+<th class="py-2.5 px-3 font-semibold text-center"><input type="checkbox" id="mov-check-all" class="cursor-pointer" onchange="toggleAllMov(this.checked)" title="Seleccionar todo"/></th>
 <th class="py-2.5 px-3 font-semibold">FECHA / HORA</th>
 <th class="py-2.5 px-3 font-semibold">CÓDIGO</th>
 <th class="py-2.5 px-3 font-semibold">LOTE BPCS</th>
@@ -821,10 +827,11 @@
 <th class="py-2.5 px-3 font-semibold">UBIC. DESTINO</th>
 <th class="py-2.5 px-3 font-semibold">MOTIVO</th>
 <th class="py-2.5 px-3 font-semibold">USUARIO</th>
+<th class="py-2.5 px-3 font-semibold text-center">ESTADO</th>
 </tr>
 </thead>
 <tbody class="divide-y divide-slate-100 font-sans text-slate-700" id="tbody-movimientos">
-<tr class="loading-row"><td colspan="8">Cargando movimientos...</td></tr>
+<tr class="loading-row"><td colspan="10">Cargando movimientos...</td></tr>
 </tbody>
 </table>
 </div>
@@ -1402,20 +1409,29 @@
   }
 
   /* =========================================================
-     RENDER: MOVIMIENTOS (TRFMAS)
+     RENDER: MOVIMIENTOS (TRFMAN)
      ========================================================= */
   function movField(r, ...keys) { for (const k of keys) if (r[k] !== undefined) return r[k]; return ''; }
 
+  function movKeyComentario(r) { return Object.keys(r).find(k => /^coment/i.test(k.trim())); }
+  function movKeyId(r) { return Object.keys(r).find(k => /^id$/i.test(k.trim())) || Object.keys(r)[0]; }
+  function movEsTrasladado(r) { const k = movKeyComentario(r); return k ? String(r[k]||'').trim().toLowerCase() === 'trasladado' : false; }
+
   function renderMovimientos(filtered) {
+    aplicarOverridesTrasladado(DATA.movimiento);
     const data = filtered || DATA.movimiento;
+    window._movVisibles = data;          // todo lo filtrado (para exportar sin selección)
+    window._movPintados = data.slice(0, 500); // lo que realmente se dibuja (para mapear los checks)
+    const chkAll = document.getElementById('mov-check-all'); if (chkAll) chkAll.checked = false;
     const tbody = document.getElementById('tbody-movimientos');
     const tbodyRecientes = document.getElementById('tbody-mov-recientes');
     if (!DATA.movimiento.length) {
-      tbody.innerHTML = '<tr class="error-row"><td colspan="8">No se pudo cargar el Sheet de Movimientos.</td></tr>';
+      tbody.innerHTML = '<tr class="error-row"><td colspan="10">No se pudo cargar el Sheet de Movimientos.</td></tr>';
       tbodyRecientes.innerHTML = '<tr class="error-row"><td colspan="8">Sin datos.</td></tr>';
     } else {
-      const rowsHtml = data.slice(0, 500).map(r => `
-        <tr class="hover:bg-slate-50">
+      const rowsHtml = window._movPintados.map((r, i) => `
+        <tr class="hover:bg-slate-50" data-idx="${i}">
+          <td class="py-2.5 px-3 text-center"><input type="checkbox" class="mov-check cursor-pointer"/></td>
           <td class="py-2.5 px-3 font-mono text-slate-500">${escapeHtml(movField(r,'FECHA','FECHA/HORA','FECHA HORA'))}</td>
           <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${escapeHtml(movField(r,'CODIGO','CÓDIGO'))}</td>
           <td class="py-2.5 px-3 font-mono text-slate-600">${escapeHtml(movField(r,'LOTE BPCS','LOTE_BPCS'))}</td>
@@ -1424,8 +1440,9 @@
           <td class="py-2.5 px-3 font-mono text-sky-700 font-medium">${escapeHtml(movField(r,'UBIC DESTINO','UBICACION DESTINO','DESTINO'))}</td>
           <td class="py-2.5 px-3 text-slate-600">${escapeHtml(movField(r,'MOTIVO','TIPO'))}</td>
           <td class="py-2.5 px-3 font-mono text-slate-600 text-[11px]">${escapeHtml(movField(r,'USUARIO','NOM_USUARIO'))}</td>
+          <td class="py-2.5 px-3 text-center">${movEsTrasladado(r) ? '<span class="badge-ok">TRASLADADO</span>' : '<span class="badge-warn">PENDIENTE</span>'}</td>
         </tr>`).join('');
-      tbody.innerHTML = rowsHtml || '<tr class="loading-row"><td colspan="8">Sin resultados.</td></tr>';
+      tbody.innerHTML = rowsHtml || '<tr class="loading-row"><td colspan="10">Sin resultados.</td></tr>';
 
       const recientes = DATA.movimiento.slice(-6).reverse().map(r => `
         <tr class="hover:bg-slate-50/70">
@@ -1459,11 +1476,14 @@
   function filterMov() {
     const cod = document.getElementById('filter-codigo-mov').value.toUpperCase().trim();
     const lote = document.getElementById('filter-lote-mov').value.toUpperCase().trim();
+    const estado = (document.getElementById('filter-estado-mov')?.value || '').toLowerCase();
     const filtered = DATA.movimiento.filter(r => {
       const c = (movField(r,'CODIGO','CÓDIGO') || '').toUpperCase();
       const l = (movField(r,'LOTE BPCS','LOTE_BPCS') || '').toUpperCase();
       if (cod && !c.includes(cod)) return false;
       if (lote && !l.includes(lote)) return false;
+      if (estado === 'trasladado' && !movEsTrasladado(r)) return false;
+      if (estado === 'pendiente' && movEsTrasladado(r)) return false;
       return true;
     });
     renderMovimientos(filtered);
@@ -1812,7 +1832,119 @@
   function exportarSaldo()      { exportarAXlsx(DATA.saldo, 'Saldo_Ludyco.xlsx', 'Saldo'); }
   function exportarIngresos()   { exportarAXlsx(DATA.ingreso, 'Ingresos_Ludyco.xlsx', 'Ingresos'); }
   function exportarPedidos()    { exportarAXlsx(DATA.pedido, 'Pedidos_Ludyco.xlsx', 'Pedidos'); }
-  function exportarMovimientos(){ exportarAXlsx(DATA.movimiento, 'TRFMAS_Ludyco.xlsx', 'Movimientos'); }
+
+  /* =========================================================
+     TRFMAN — mismo formato que TRFMAS pero con las cabeceras
+     (columnas) en un ORDEN FIJO: RCCUS, RBPRD, RBLOT, RQTYT, RFRWH,
+     RTOWH, RFRLC, RTOLC, RNDOC, RCOM, RTHCMT, RRSNC. Marca como "Trasladado" lo
+     exportado cuando hay filas seleccionadas.
+     ========================================================= */
+  // Debe ser EXACTAMENTE el mismo texto que la constante TOKEN en el Code.gs de este Sheet.
+  // Mientras APPS_SCRIPT_URL esté vacío, TRFMAN descarga el archivo pero NO marca "Trasladado" en el Sheet.
+  const APPS_SCRIPT_URL = '';
+  const UPLOAD_TOKEN = '';
+  const _trasladadosOverride = {};      // id -> timestamp
+  const OVERRIDE_TTL = 5 * 60 * 1000;   // el CSV publicado tarda 1-2 min en reflejar cambios
+
+  function aplicarOverridesTrasladado(data) {
+    const now = Date.now();
+    Object.keys(_trasladadosOverride).forEach(id => { if (now - _trasladadosOverride[id] > OVERRIDE_TTL) delete _trasladadosOverride[id]; });
+    if (!Object.keys(_trasladadosOverride).length || !data.length) return;
+    const kId = movKeyId(data[0]), kCom = movKeyComentario(data[0]);
+    if (!kCom) return;
+    data.forEach(r => { if (_trasladadosOverride[String(r[kId])] !== undefined) r[kCom] = 'Trasladado'; });
+  }
+
+  function toggleAllMov(checked) {
+    document.querySelectorAll('#tbody-movimientos .mov-check').forEach(c => c.checked = checked);
+  }
+
+  function exportMovTRFMAN() {
+    const visibles = window._movVisibles || DATA.movimiento;
+    if (!visibles.length) { triggerToast('No hay datos de movimientos para exportar'); return; }
+
+    // Orden fijo de columnas de TRFMAN (solo estas salen en el archivo)
+    const ORDEN_TRFMAN = ['RCCUS','RBPRD','RBLOT','RQTYT','RFRWH','RTOWH','RFRLC','RTOLC','RNDOC','RCOM','RTHCMT','RRSNC'];
+    const TIPO_NUM   = ['RCCUS', 'RQTYT', 'RNDOC'];
+
+    // Filas seleccionadas (los checks se mapean con lo que está pintado)
+    const pintados = window._movPintados || [];
+    const seleccion = [];
+    document.querySelectorAll('#tbody-movimientos tr[data-idx]').forEach(tr => {
+      if (tr.querySelector('.mov-check')?.checked) { const r = pintados[+tr.dataset.idx]; if (r) seleccion.push(r); }
+    });
+    const source = seleccion.length ? seleccion : visibles;
+
+    // Cabeceras en el orden fijo de TRFMAN; se busca cada una en el Sheet sin importar mayúsculas/espacios
+    const keyOf = {};
+    Object.keys(source[0]).forEach(k => { keyOf[k.trim().toUpperCase()] = k; });
+    const headers = ORDEN_TRFMAN;
+    const faltantes = headers.filter(h => !keyOf[h]);
+    if (faltantes.length) triggerToast('Columnas no encontradas en el Sheet (salen vacías): ' + faltantes.join(', '));
+
+    const aoa = [headers];
+    source.forEach(row => {
+      aoa.push(headers.map(h => {
+        const raw = keyOf[h] ? String(row[keyOf[h]] ?? '').trim() : '';
+        if (TIPO_NUM.includes(h)) return parseFloat(raw.replace(/,/g, '')) || 0;
+        return raw;
+      }));
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    // Forzar texto en las celdas no numéricas (conserva ceros a la izquierda, lotes, etc.)
+    headers.forEach((h, C) => {
+      if (TIPO_NUM.includes(h.trim().toUpperCase())) return;
+      for (let R = 1; R <= source.length; R++) {
+        const a = XLSX.utils.encode_cell({ r: R, c: C });
+        if (ws[a]) { ws[a].t = 's'; ws[a].v = String(ws[a].v ?? ''); }
+      }
+    });
+    ws['!cols'] = headers.map((h, C) => {
+      let m = h.length; aoa.forEach(r => { const l = String(r[C] ?? '').length; if (l > m) m = l; });
+      return { wch: Math.min(m + 2, 50) };
+    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'TRFMAN');
+    XLSX.writeFile(wb, 'TRFMAN.xls');
+    triggerToast('Archivo TRFMAN generado (' + source.length + ' filas)');
+
+    if (seleccion.length) {
+      const kId = movKeyId(source[0]);
+      const ids = source.map(r => r[kId]).filter(Boolean);
+      if (ids.length) marcarTrasladadoMov(ids);
+    }
+  }
+
+  async function marcarTrasladadoMov(ids) {
+    if (!APPS_SCRIPT_URL) {
+      triggerToast('TRFMAN descargado. Falta configurar APPS_SCRIPT_URL para marcar "Trasladado" en el Sheet');
+      return;
+    }
+    try {
+      const resp = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS
+        body: JSON.stringify({ token: UPLOAD_TOKEN, action: 'marcarTrasladado', ids })
+      });
+      const result = await resp.json();
+      if (!result.ok) { triggerToast('No se pudo marcar Trasladado: ' + (result.error || 'error desconocido')); return; }
+      if (Array.isArray(result.noEncontradas) && result.noEncontradas.length) {
+        triggerToast('Ojo: ' + result.noEncontradas.length + ' ID(s) no se encontraron en la pestaña de Movimientos del Sheet');
+      }
+    } catch (e) {
+      triggerToast('No se pudo conectar con el Sheet para marcar Trasladado: ' + e.message);
+      return;
+    }
+    const idSet = new Set(ids.map(String));
+    const now = Date.now();
+    if (DATA.movimiento.length) {
+      const kId = movKeyId(DATA.movimiento[0]), kCom = movKeyComentario(DATA.movimiento[0]);
+      DATA.movimiento.forEach(r => { if (kCom && idSet.has(String(r[kId]))) r[kCom] = 'Trasladado'; });
+    }
+    idSet.forEach(id => { _trasladadosOverride[id] = now; });
+    filterMov();
+    triggerToast('Marcados como Trasladado: ' + ids.length);
+  }
 
   /* =========================================================
      PLANTILLAS: Descargar / Cargar Saldo
